@@ -17,7 +17,7 @@ USE_OLLAMA = os.getenv("USE_OLLAMA", "").lower() in ("1", "true", "yes")
 # Google Gemini (free tier; get key at https://aistudio.google.com/apikey)
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 GEMINI_EMBED_MODEL = os.getenv("GEMINI_EMBED_MODEL", "gemini-embedding-001")
-GEMINI_CHAT_MODEL = os.getenv("GEMINI_CHAT_MODEL", "gemini-2.0-flash-lite")
+GEMINI_CHAT_MODEL = os.getenv("GEMINI_CHAT_MODEL", "gemini-2.5-flash")
 
 # OpenAI (used when neither Gemini nor Ollama)
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
