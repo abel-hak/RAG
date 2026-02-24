@@ -14,6 +14,10 @@ build/
 # Chroma DB (can be recreated by re-indexing)
 chroma_db/
 
+# Node
+node_modules/
+frontend/dist/
+
 # IDE / OS
 .idea/
 .vscode/

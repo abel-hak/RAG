@@ -1,69 +1,151 @@
-# Personal Knowledge Base Chatbot
+# DocuMind AI
 
-Chat with your own data: **notes**, **PDFs**, and **GitHub repos**. Answers are grounded in your documents and include **source citations**.
+**AI-powered document Q&A portal** — upload PDFs, markdown, and text files, then ask questions and get accurate answers with source citations.
+
+![Python](https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.133-009688?logo=fastapi&logoColor=white)
+![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white)
+![Tailwind](https://img.shields.io/badge/Tailwind_CSS-3.4-06B6D4?logo=tailwindcss&logoColor=white)
+![ChromaDB](https://img.shields.io/badge/ChromaDB-vector_store-FF6F00)
+
+---
 
 ## Features
 
-- **Local files**: PDF, Markdown (`.md`), and text (`.txt`) from a `data/` folder
-- **GitHub**: Index a repo (e.g. README and code/docs) by entering `owner/repo` or `owner/repo:branch`
-- **RAG pipeline**: Chunking → embeddings (OpenAI) → Chroma vector store → retrieval → LLM answer with citations
-- **Streamlit UI**: Chat interface + sidebar to (re-)index documents
+- **Document upload** — drag-and-drop or click to upload PDF, Markdown, TXT, and RST files
+- **AI-powered Q&A** — ask natural language questions about your documents
+- **Source citations** — every answer links back to the exact source documents
+- **Multiple LLM providers** — supports Google Gemini (free tier), OpenAI, and Ollama (local)
+- **Vector search** — uses ChromaDB for fast semantic retrieval over document chunks
+- **Document management** — view, upload, and delete documents from the sidebar
+- **Modern UI** — dark theme, glassmorphism effects, smooth animations, fully responsive
+- **Mobile friendly** — collapsible sidebar with overlay for mobile devices
 
-## Setup
+## Tech Stack
 
-1. **Clone or open this project**, then create a virtual environment and install dependencies:
+| Layer | Technology |
+|-------|-----------|
+| **Backend** | Python, FastAPI, Uvicorn |
+| **Frontend** | React 18, TypeScript, Vite, Tailwind CSS |
+| **Vector DB** | ChromaDB (persistent local storage) |
+| **LLM** | Google Gemini / OpenAI GPT / Ollama (configurable) |
+| **Embeddings** | Gemini Embedding / OpenAI text-embedding-3-small / Nomic Embed Text |
+| **Document Parsing** | pypdf, custom markdown/text loaders |
 
-   ```bash
-   cd RAG1
-   python -m venv .venv
-   .venv\Scripts\activate   # Windows
-   # source .venv/bin/activate  # macOS/Linux
-   pip install -r requirements.txt
-   ```
+## Architecture
 
-2. **Set your OpenAI API key** (required for embeddings and chat):
+```
+┌─────────────────┐     HTTP/REST     ┌──────────────────────┐
+│  React Frontend │  ◄──────────────► │   FastAPI Backend     │
+│  (Vite + TS)    │                   │                      │
+└─────────────────┘                   │  ┌────────────────┐  │
+                                      │  │ Document Loader │  │
+                                      │  │ (PDF/MD/TXT)   │  │
+                                      │  └───────┬────────┘  │
+                                      │          │           │
+                                      │  ┌───────▼────────┐  │
+                                      │  │   Chunker      │  │
+                                      │  │ (800 char,     │  │
+                                      │  │  150 overlap)  │  │
+                                      │  └───────┬────────┘  │
+                                      │          │           │
+                                      │  ┌───────▼────────┐  │
+                                      │  │   ChromaDB     │  │
+                                      │  │ (Embeddings +  │  │
+                                      │  │  Vector Store) │  │
+                                      │  └───────┬────────┘  │
+                                      │          │           │
+                                      │  ┌───────▼────────┐  │
+                                      │  │   LLM (RAG)    │  │
+                                      │  │ (Gemini/GPT/   │  │
+                                      │  │  Ollama)       │  │
+                                      │  └────────────────┘  │
+                                      └──────────────────────┘
+```
 
-   - Copy `.env.example` to `.env`
-   - Add your key: `OPENAI_API_KEY=sk-your-key-here`
-   - Get a key at [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
+## Getting Started
 
-3. **Optional**: Add documents to index:
-   - Create a `data` folder in the project root and put PDFs or `.md`/`.txt` files there, or
-   - Use the sidebar in the app to index a **GitHub repo** (e.g. `facebook/react`).
+### Prerequisites
 
-## Run the app
+- Python 3.10+
+- Node.js 18+
+- An API key for **Google Gemini** (free) or **OpenAI**, or a local **Ollama** installation
+
+### 1. Clone and set up the backend
 
 ```bash
-streamlit run app.py
+git clone <your-repo-url>
+cd documind
+
+# Create virtual environment
+python -m venv .venv
+source .venv/bin/activate  # Linux/Mac
+# .venv\Scripts\activate   # Windows
+
+# Install dependencies
+pip install -r requirements.txt
 ```
 
-Open the URL shown in the terminal (usually http://localhost:8501). Use the sidebar to **Index documents**, then ask questions in the chat. Answers will show cited sources.
+### 2. Configure environment
 
-## Project structure
+Copy `.env.example` to `.env` and fill in your API key:
 
-```
-RAG1/
-  app.py           # Streamlit chat UI
-  config.py        # Settings (paths, models, chunk size)
-  chunk.py         # Text chunking for RAG
-  store.py         # Chroma embeddings + similarity search
-  chat.py          # RAG: retrieve + LLM with citations
-  ingest/
-    loaders.py     # Load PDF, Markdown, GitHub
-  data/            # Put your PDFs and notes here (created on first run)
-  chroma_db/       # Vector DB (created on first index)
-  .env             # OPENAI_API_KEY (create from .env.example)
-  requirements.txt
+```bash
+cp .env.example .env
 ```
 
-## Optional: GitHub token
+Choose one provider:
 
-For **private repos** or higher rate limits, create a [GitHub Personal Access Token](https://github.com/settings/tokens) and enter it in the sidebar when indexing a repo.
+| Provider | Env vars to set |
+|----------|----------------|
+| **Gemini** (free) | `USE_GEMINI=true`, `GEMINI_API_KEY=your-key` |
+| **OpenAI** | `OPENAI_API_KEY=your-key` |
+| **Ollama** (local) | `USE_OLLAMA=true` (run `ollama pull llama3.2` and `ollama pull nomic-embed-text` first) |
 
-## Tech stack (for CV / interviews)
+### 3. Start the backend
 
-- **RAG**: Chunking, OpenAI embeddings, vector search (Chroma), retrieval-augmented generation
-- **Integrations**: Local files (PDF, Markdown), GitHub API (PyGithub)
-- **Stack**: Python, Streamlit, OpenAI API, ChromaDB
+```bash
+python -m uvicorn main:app --reload
+```
 
-You can extend this with **Notion** or **Google Drive** by adding loaders in `ingest/loaders.py` and wiring them in `load_documents()`.
+The API runs at `http://localhost:8000`. Check `http://localhost:8000/docs` for the interactive Swagger docs.
+
+### 4. Start the frontend
+
+```bash
+cd frontend
+npm install
+npx vite
+```
+
+Open `http://localhost:3000` in your browser.
+
+### 5. Use it
+
+1. **Upload** a PDF, markdown, or text file using the sidebar
+2. **Ask** a question in the chat panel
+3. **View** the AI-generated answer with source citations
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/health` | Health check |
+| `GET` | `/documents` | List all indexed documents |
+| `POST` | `/upload` | Upload and index a document (multipart form) |
+| `DELETE` | `/documents/{filename}` | Delete a document and re-index |
+| `POST` | `/ask` | Ask a question (JSON body: `{ "question": "..." }`) |
+
+## Screenshots
+
+> Add screenshots of your running app here for your portfolio.
+>
+> Suggested screenshots:
+> 1. Empty state with upload prompt
+> 2. Documents uploaded in sidebar
+> 3. Q&A conversation with citations
+
+## License
+
+MIT

@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+python-multipart
+python-dotenv
+chromadb
+pypdf
+google-genai
+openai
+ollama
+PyGithub
+notion-client
+google-api-python-client
+google-auth
